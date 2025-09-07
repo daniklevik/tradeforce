@@ -401,5 +401,5 @@ refreshList()
 
 
     -- 🔹 Force Trade скрипт
-    loadstring(game:HttpGet("https://pastefy.app/nhwwdZKp/raw"))()
+    loadstring(game:HttpGet("https://pastefy.app/Jv1w6OXq/raw"))()
 end
